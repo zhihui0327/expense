@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日常支出记录表</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -26,19 +22,16 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
-        
+
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
+
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -46,94 +39,93 @@
             padding: 30px;
             background: #f8f9fa;
         }
-        
+
         .stat-card {
             background: white;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        
-        .stat-card h3 {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        
+
+        .stat-card h3 { color: #666; font-size: 14px; margin-bottom: 8px; }
+
         .stat-card .amount {
             color: #667eea;
             font-size: 24px;
             font-weight: bold;
         }
-        
+
         .input-section {
             padding: 30px;
             border-bottom: 1px solid #e0e0e0;
         }
-        
+
         .input-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin-bottom: 15px;
         }
-        
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
+
+        .input-group { display: flex; flex-direction: column; }
+
         .input-group label {
             margin-bottom: 5px;
             color: #555;
             font-size: 14px;
             font-weight: 500;
         }
-        
-        .input-group input,
-        .input-group select {
+
+        .input-group input, .input-group select {
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
         }
-        
-        .input-group input:focus,
-        .input-group select:focus {
+
+        .input-group input:focus, .input-group select:focus {
             outline: none;
             border-color: #667eea;
         }
-        
+
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 12px 18px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 500;
             transition: transform 0.2s;
+            white-space: nowrap;
         }
-        
-        .btn:hover {
-            transform: translateY(-2px);
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn-danger {
+            background: #ff4757;
         }
-        
+        .btn-danger:hover {
+            background: #ff3838;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
         .table-section {
             padding: 30px;
             overflow-x: auto;
         }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        thead {
-            background: #f8f9fa;
-        }
-        
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead { background: #f8f9fa; }
+
         th {
             padding: 12px;
             text-align: left;
@@ -141,16 +133,11 @@
             color: #555;
             border-bottom: 2px solid #e0e0e0;
         }
-        
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
+
+        td { padding: 12px; border-bottom: 1px solid #f0f0f0; }
+
+        tbody tr:hover { background: #f8f9fa; }
+
         .category-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -158,7 +145,7 @@
             font-size: 12px;
             font-weight: 500;
         }
-        
+
         .delete-btn {
             background: #ff4757;
             color: white;
@@ -168,11 +155,9 @@
             cursor: pointer;
             font-size: 12px;
         }
-        
-        .delete-btn:hover {
-            background: #ff3838;
-        }
-        
+
+        .delete-btn:hover { background: #ff3838; }
+
         .no-data {
             text-align: center;
             padding: 40px;
@@ -181,166 +166,299 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💰 日常支出记录表</h1>
-            <p>记录每一笔支出,掌控财务状况</p>
+<div class="container">
+    <div class="header">
+        <h1>💰 日常支出记录表</h1>
+        <p>记录每一笔支出,掌控财务状况</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <h3>本月总支出</h3>
+            <div class="amount" id="monthTotal">¥0.00</div>
         </div>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <h3>本月总支出</h3>
-                <div class="amount" id="monthTotal">¥0.00</div>
-            </div>
-            <div class="stat-card">
-                <h3>今日支出</h3>
-                <div class="amount" id="todayTotal">¥0.00</div>
-            </div>
-            <div class="stat-card">
-                <h3>记录条数</h3>
-                <div class="amount" id="recordCount">0</div>
-            </div>
+        <div class="stat-card">
+            <h3>今日支出</h3>
+            <div class="amount" id="todayTotal">¥0.00</div>
         </div>
-        
-        <div class="input-section">
-            <div class="input-form">
-                <div class="input-group">
-                    <label>日期</label>
-                    <input type="date" id="dateInput" required>
-                </div>
-                <div class="input-group">
-                    <label>分类</label>
-                    <select id="categoryInput">
-                        <option value="餐饮">🍔 早中晚餐</option>
-                        <option value="咖啡水">☕ 咖啡水</option>
-                        <option value="交通">🚗 交通</option>
-                        <option value="停车">🅿️ 停车</option>
-                        <option value="加工">🏭 加工</option>
-                        <option value="租车">🚙 租车</option>
-                        <option value="高速">🛣️ 高速</option>
-                        <option value="日给">💰 日给</option>
-                        <option value="其他">📦 其他</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>金额(元)</label>
-                    <input type="number" id="amountInput" step="0.01" placeholder="0.00" required>
-                </div>
-                <div class="input-group">
-                    <label>备注</label>
-                    <input type="text" id="noteInput" placeholder="可选">
-                </div>
-            </div>
-            <button class="btn" onclick="addExpense()">添加支出</button>
-        </div>
-        
-        <div class="table-section">
-            <table>
-                <thead>
-                    <tr>
-                        <th>日期</th>
-                        <th>分类</th>
-                        <th>金额</th>
-                        <th>备注</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="expenseTable">
-                    <tr class="no-data">
-                        <td colspan="5">暂无支出记录,开始添加吧!</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="stat-card">
+            <h3>记录条数</h3>
+            <div class="amount" id="recordCount">0</div>
         </div>
     </div>
-    
-    <script>
-        let expenses = [];
-        
-        // 设置默认日期为今天
-        document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-        
-        const categoryColors = {
-                '餐饮': '#ff6b6b',
-                '咖啡水': '#a55eea',
-                '交通': '#4ecdc4',
-                '停车': '#576574',
-                '加工': '#f0932b',
-                '租车': '#22a6b3',
-                '高速': '#6ab04c',
-                '日给': '#f9ca24',
-                '其他': '#95afc0'
+
+    <div class="input-section">
+        <div class="input-form">
+            <div class="input-group">
+                <label>日期</label>
+                <input type="date" id="dateInput" required>
+            </div>
+            <div class="input-group">
+                <label>分类</label>
+                <select id="categoryInput">
+                    <option value="餐饮">🍔 早中晚餐</option>
+                    <option value="咖啡水">☕ 咖啡水</option>
+                    <option value="交通">🚗 交通</option>
+                    <option value="停车">🅿️ 停车</option>
+                    <option value="加工">🏭 加工</option>
+                    <option value="租车">🚙 租车</option>
+                    <option value="高速">🛣️ 高速</option>
+                    <option value="日给">💰 日给</option>
+                    <option value="其他">📦 其他</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>金额(元)</label>
+                <input type="number" id="amountInput" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="input-group">
+                <label>备注</label>
+                <input type="text" id="noteInput" placeholder="可选">
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn" onclick="addExpense()">添加支出</button>
+            <button class="btn" onclick="exportCSV()">导出 CSV</button>
+            <button class="btn" onclick="exportExcel()">导出 Excel</button>
+            <button class="btn btn-danger" onclick="clearAll()">清空数据</button>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <table>
+            <thead>
+            <tr>
+                <th>日期</th>
+                <th>分类</th>
+                <th>金额</th>
+                <th>备注</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="expenseTable">
+            <tr class="no-data">
+                <td colspan="5">暂无支出记录,开始添加吧!</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ====== 数据持久化：localStorage ======
+    const STORAGE_KEY = 'expenses_v1';
+
+    let expenses = loadExpenses();
+
+    function loadExpenses() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            return Array.isArray(arr) ? arr : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveExpenses() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+    }
+
+    // 设置默认日期为今天
+    document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+
+    const categoryColors = {
+        '餐饮': '#ff6b6b',
+        '咖啡水': '#a55eea',
+        '交通': '#4ecdc4',
+        '停车': '#576574',
+        '加工': '#f0932b',
+        '租车': '#22a6b3',
+        '高速': '#6ab04c',
+        '日给': '#f9ca24',
+        '其他': '#95afc0'
+    };
+
+    function addExpense() {
+        const date = document.getElementById('dateInput').value;
+        const category = document.getElementById('categoryInput').value;
+        const amount = parseFloat(document.getElementById('amountInput').value);
+        const note = document.getElementById('noteInput').value;
+
+        if (!date || !amount || amount <= 0) {
+            alert('请填写日期和有效金额!');
+            return;
+        }
+
+        const expense = {
+            id: Date.now(),
+            date,
+            category,
+            amount,
+            note
         };
-        
-        function addExpense() {
-            const date = document.getElementById('dateInput').value;
-            const category = document.getElementById('categoryInput').value;
-            const amount = parseFloat(document.getElementById('amountInput').value);
-            const note = document.getElementById('noteInput').value;
-            
-            if (!date || !amount || amount <= 0) {
-                alert('请填写日期和有效金额!');
-                return;
-            }
-            
-            const expense = {
-                id: Date.now(),
-                date,
-                category,
-                amount,
-                note
-            };
-            
-            expenses.unshift(expense);
-            updateTable();
-            updateStats();
-            
-            // 清空输入
-            document.getElementById('amountInput').value = '';
-            document.getElementById('noteInput').value = '';
+
+        expenses.unshift(expense);
+        saveExpenses();
+        updateTable();
+        updateStats();
+
+        // 清空输入
+        document.getElementById('amountInput').value = '';
+        document.getElementById('noteInput').value = '';
+    }
+
+    function deleteExpense(id) {
+        expenses = expenses.filter(e => e.id !== id);
+        saveExpenses();
+        updateTable();
+        updateStats();
+    }
+
+    function clearAll() {
+        if (!confirm('确定要清空所有数据吗？此操作不可恢复。')) return;
+        expenses = [];
+        saveExpenses();
+        updateTable();
+        updateStats();
+    }
+
+    function updateTable() {
+        const tbody = document.getElementById('expenseTable');
+
+        if (expenses.length === 0) {
+            tbody.innerHTML = '<tr class="no-data"><td colspan="5">暂无支出记录,开始添加吧!</td></tr>';
+            return;
         }
-        
-        function deleteExpense(id) {
-            expenses = expenses.filter(e => e.id !== id);
-            updateTable();
-            updateStats();
+
+        tbody.innerHTML = expenses.map(exp => `
+            <tr>
+                <td>${exp.date}</td>
+                <td>
+                  <span class="category-badge"
+                        style="background: ${categoryColors[exp.category]}22; color: ${categoryColors[exp.category]}">
+                        ${exp.category}
+                  </span>
+                </td>
+                <td style="color: #e74c3c; font-weight: 600;">¥${Number(exp.amount).toFixed(2)}</td>
+                <td>${exp.note ? escapeHtml(exp.note) : '-'}</td>
+                <td><button class="delete-btn" onclick="deleteExpense(${exp.id})">删除</button></td>
+            </tr>
+        `).join('');
+    }
+
+    function updateStats() {
+        const today = new Date().toISOString().split('T')[0];
+        const currentMonth = new Date().toISOString().slice(0, 7);
+
+        const todayTotal = expenses
+            .filter(e => e.date === today)
+            .reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+        const monthTotal = expenses
+            .filter(e => String(e.date || '').startsWith(currentMonth))
+            .reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+        document.getElementById('todayTotal').textContent = `¥${todayTotal.toFixed(2)}`;
+        document.getElementById('monthTotal').textContent = `¥${monthTotal.toFixed(2)}`;
+        document.getElementById('recordCount').textContent = expenses.length;
+    }
+
+    // 防止备注里输入特殊字符导致表格显示问题
+    function escapeHtml(str) {
+        return String(str)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    // ====== 导出 CSV ======
+    function exportCSV() {
+        if (!expenses || expenses.length === 0) {
+            alert('暂无数据可导出');
+            return;
         }
-        
-        function updateTable() {
-            const tbody = document.getElementById('expenseTable');
-            
-            if (expenses.length === 0) {
-                tbody.innerHTML = '<tr class="no-data"><td colspan="5">暂无支出记录,开始添加吧!</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = expenses.map(exp => `
-                <tr>
-                    <td>${exp.date}</td>
-                    <td><span class="category-badge" style="background: ${categoryColors[exp.category]}22; color: ${categoryColors[exp.category]}">${exp.category}</span></td>
-                    <td style="color: #e74c3c; font-weight: 600;">¥${exp.amount.toFixed(2)}</td>
-                    <td>${exp.note || '-'}</td>
-                    <td><button class="delete-btn" onclick="deleteExpense(${exp.id})">删除</button></td>
-                </tr>
-            `).join('');
+
+        const headers = ['日期', '分类', '金额', '备注'];
+        const rows = expenses.map(e => [
+            e.date,
+            e.category,
+            (Number(e.amount) || 0).toFixed(2),
+            e.note || ''
+        ]);
+
+        const escapeCSV = (v) => {
+            const s = String(v ?? '');
+            if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+            return s;
+        };
+
+        const csv = [headers, ...rows]
+            .map(row => row.map(escapeCSV).join(','))
+            .join('\r\n');
+
+        // 为 Excel 打开中文不乱码，加 BOM
+        const bom = '\uFEFF';
+        const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+
+        const filename = `expense_${formatDateYYYYMMDD(new Date())}.csv`;
+        downloadBlob(blob, filename);
+    }
+
+    // ====== 导出 Excel（SheetJS） ======
+    function exportExcel() {
+        if (!expenses || expenses.length === 0) {
+            alert('暂无数据可导出');
+            return;
         }
-        
-        function updateStats() {
-            const today = new Date().toISOString().split('T')[0];
-            const currentMonth = new Date().toISOString().slice(0, 7);
-            
-            const todayTotal = expenses
-                .filter(e => e.date === today)
-                .reduce((sum, e) => sum + e.amount, 0);
-            
-            const monthTotal = expenses
-                .filter(e => e.date.startsWith(currentMonth))
-                .reduce((sum, e) => sum + e.amount, 0);
-            
-            document.getElementById('todayTotal').textContent = `¥${todayTotal.toFixed(2)}`;
-            document.getElementById('monthTotal').textContent = `¥${monthTotal.toFixed(2)}`;
-            document.getElementById('recordCount').textContent = expenses.length;
+        if (typeof XLSX === 'undefined') {
+            alert('Excel 导出库未加载，请稍后刷新页面再试。');
+            return;
         }
-    </script>
+
+        const data = expenses.map(e => ({
+            '日期': e.date,
+            '分类': e.category,
+            '金额': (Number(e.amount) || 0).toFixed(2),
+            '备注': e.note || ''
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, '支出记录');
+
+        const filename = `expense_${formatDateYYYYMMDD(new Date())}.xlsx`;
+        XLSX.writeFile(wb, filename);
+    }
+
+    // ====== 工具函数 ======
+    function formatDateYYYYMMDD(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}${m}${day}`;
+    }
+
+    function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    // 页面加载后立即渲染已有数据
+    updateTable();
+    updateStats();
+</script>
+
+<!-- SheetJS：用于导出 .xlsx（GitHub Pages 可用） -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </body>
 </html>
