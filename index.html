@@ -103,12 +103,8 @@
 
         .btn:hover { transform: translateY(-2px); }
 
-        .btn-danger {
-            background: #ff4757;
-        }
-        .btn-danger:hover {
-            background: #ff3838;
-        }
+        .btn-danger { background: #ff4757; }
+        .btn-danger:hover { background: #ff3838; }
 
         .btn-row {
             display: flex;
@@ -123,7 +119,6 @@
         }
 
         table { width: 100%; border-collapse: collapse; }
-
         thead { background: #f8f9fa; }
 
         th {
@@ -162,6 +157,22 @@
             text-align: center;
             padding: 40px;
             color: #999;
+        }
+
+        /* ====== 点击单元格编辑：追加样式 ====== */
+        .cell-editable {
+            cursor: pointer;
+            position: relative;
+        }
+        .cell-editable:hover {
+            background: #f3f4ff;
+        }
+        .inline-editor {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #667eea;
+            border-radius: 6px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -283,10 +294,11 @@
     function addExpense() {
         const date = document.getElementById('dateInput').value;
         const category = document.getElementById('categoryInput').value;
-        const amount = parseFloat(document.getElementById('amountInput').value);
+        const amount = Number(document.getElementById('amountInput').value);
         const note = document.getElementById('noteInput').value;
 
-        if (!date || !amount || amount <= 0) {
+        // 校验：不要用 !amount（0 会被当 false），用 isFinite
+        if (!date || !Number.isFinite(amount) || amount <= 0) {
             alert('请填写日期和有效金额!');
             return;
         }
@@ -314,6 +326,12 @@
         saveExpenses();
         updateTable();
         updateStats();
+
+        // 如果正在编辑某格，且该行被删，直接取消编辑态并重绘
+        if (editingCell && editingCell.id === id) {
+            editingCell = null;
+            updateTable();
+        }
     }
 
     function clearAll() {
@@ -322,6 +340,93 @@
         saveExpenses();
         updateTable();
         updateStats();
+    }
+
+    // ====== 点击单元格编辑：核心逻辑 ======
+    let editingCell = null; // { id, field, oldValue }
+
+    function beginInlineEdit(id, field) {
+        // 如果已有其他格在编辑，先取消（也可以改成先保存）
+        if (editingCell) {
+            cancelInlineEdit();
+        }
+
+        const exp = expenses.find(e => e.id === id);
+        if (!exp) return;
+
+        const cell = document.querySelector(`td[data-id="${id}"][data-field="${field}"]`);
+        if (!cell) return;
+
+        const oldValue = exp[field] ?? '';
+        editingCell = { id, field, oldValue };
+
+        const input = document.createElement('input');
+        input.className = 'inline-editor';
+
+        if (field === 'amount') {
+            input.type = 'number';
+            input.step = '0.01';
+            input.value = Number(exp.amount || 0).toFixed(2);
+        } else {
+            input.type = 'text';
+            input.value = String(exp.note || '');
+        }
+
+        cell.innerHTML = '';
+        cell.appendChild(input);
+        input.focus();
+        input.select();
+
+        // Enter 保存；Esc 取消
+        input.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+                ev.preventDefault();
+                commitInlineEdit(input.value);
+            } else if (ev.key === 'Escape') {
+                ev.preventDefault();
+                cancelInlineEdit();
+            }
+        });
+
+        // 失焦保存（点击其他地方也能保存）
+        input.addEventListener('blur', () => {
+            if (editingCell) commitInlineEdit(input.value);
+        });
+    }
+
+    function commitInlineEdit(newValueRaw) {
+        if (!editingCell) return;
+
+        const { id, field } = editingCell;
+        const idx = expenses.findIndex(e => e.id === id);
+        if (idx === -1) {
+            editingCell = null;
+            updateTable();
+            return;
+        }
+
+        if (field === 'amount') {
+            const amount = Number(String(newValueRaw).trim());
+            if (!Number.isFinite(amount) || amount <= 0) {
+                alert('请输入有效金额（> 0）');
+                cancelInlineEdit();
+                return;
+            }
+            expenses[idx].amount = amount;
+        } else {
+            expenses[idx].note = String(newValueRaw ?? '').trim();
+        }
+
+        saveExpenses();
+        editingCell = null;
+        updateTable();
+        updateStats();
+    }
+
+    function cancelInlineEdit() {
+        if (!editingCell) return;
+        editingCell = null;
+        updateTable();
     }
 
     function updateTable() {
@@ -341,9 +446,27 @@
                         ${exp.category}
                   </span>
                 </td>
-                <td style="color: #e74c3c; font-weight: 600;">¥${Number(exp.amount).toFixed(2)}</td>
-                <td>${exp.note ? escapeHtml(exp.note) : '-'}</td>
-                <td><button class="delete-btn" onclick="deleteExpense(${exp.id})">删除</button></td>
+
+                <!-- 金额：点击编辑 -->
+                <td class="cell-editable"
+                    data-id="${exp.id}"
+                    data-field="amount"
+                    style="color: #e74c3c; font-weight: 600;"
+                    onclick="beginInlineEdit(${exp.id}, 'amount')">
+                    ¥${Number(exp.amount).toFixed(2)}
+                </td>
+
+                <!-- 备注：点击编辑 -->
+                <td class="cell-editable"
+                    data-id="${exp.id}"
+                    data-field="note"
+                    onclick="beginInlineEdit(${exp.id}, 'note')">
+                    ${exp.note ? escapeHtml(exp.note) : '-'}
+                </td>
+
+                <td>
+                    <button class="delete-btn" onclick="deleteExpense(${exp.id})">删除</button>
+                </td>
             </tr>
         `).join('');
     }
@@ -400,7 +523,6 @@
             .map(row => row.map(escapeCSV).join(','))
             .join('\r\n');
 
-        // 为 Excel 打开中文不乱码，加 BOM
         const bom = '\uFEFF';
         const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
 
